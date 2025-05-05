@@ -22,6 +22,21 @@ router
     ProfileController.createProfile
   );
 
-router.route("/:id").get(ProfileController.getMyProfile);
+router
+  .route("/report")
+  .get(auth(UserRole.ADMIN), ProfileController.getAllReport);
+
+router
+  .route("/report/:id")
+  .post(
+    auth(UserRole.USER),
+    validateRequest(ProfileValidation.ProfileReportSchema),
+    ProfileController.reportProfile
+  );
+
+router
+  .route("/:id")
+  .get(ProfileController.getSingleProfile)
+  .delete(auth(UserRole.ADMIN), ProfileController.deleteProfile);
 
 export const ProfileRoutes = router;

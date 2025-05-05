@@ -3,9 +3,14 @@ import ApiError from "../../../errors/ApiErrors";
 import { IPaginationOptions } from "../../../interfaces/paginations";
 import { paginationHelper } from "../../../helpars/paginationHelper";
 import { Prisma, Profile } from "@prisma/client";
-import { TProfile, TProfileFilterRequest } from "./profile.interface";
+import {
+  TProfile,
+  TProfileFilterRequest,
+  TProfileReport,
+} from "./profile.interface";
 import { profileSearchAbleFields } from "./profile.costant";
 import { fileUploader } from "../../../helpars/fileUploader";
+import httpStatus from "http-status";
 
 const createProfile = async (payload: TProfile, imageFile: any, id: string) => {
   const result = await prisma.$transaction(async (prisma) => {
@@ -15,10 +20,11 @@ const createProfile = async (payload: TProfile, imageFile: any, id: string) => {
     }
 
     const createProfile = await prisma.profile.create({
-      data: { ...payload, userId: id },
+      data: { ...payload, userId: id, image },
       select: {
         id: true,
         fullName: true,
+        image: true,
         maritalStatus: true,
         location: true,
         maritalVerifyCount: true,
@@ -69,7 +75,7 @@ const getAllProfiles = async (
   const whereConditons: Prisma.ProfileWhereInput = { AND: andCondions };
 
   const result = await prisma.profile.findMany({
-    where: whereConditons,
+    where: { ...whereConditons, isDeleted: false },
     orderBy:
       options.sortBy && options.sortOrder
         ? {
@@ -81,8 +87,16 @@ const getAllProfiles = async (
     select: {
       id: true,
       fullName: true,
+      image: true,
+      maritalStatus: true,
+      location: true,
+      maritalVerifyCount: true,
+      redFlag: true,
+      greenFlag: true,
+      yellowFlag: true,
       createdAt: true,
       updatedAt: true,
+      userId: true,
     },
   });
   // const total = await prisma.profile.count({
@@ -104,23 +118,109 @@ const getAllProfiles = async (
   return result;
 };
 
-const getMyProfile = async (ProfileEmail: string) => {
-  // const ProfileProfile = await prisma.profile.findUnique({
-  //   where: {
-  //     email: ProfileEmail,
-  //   },
-  //   select: {
-  //     id: true,
-  //     fullName: true,
-  //     createdAt: true,
-  //     updatedAt: true,
-  //   },
-  // });
-  // return ProfileProfile;
+const getSingleProfile = async (id: string) => {
+  const result = await prisma.profile.findUnique({
+    where: { id, isDeleted: false },
+    select: {
+      id: true,
+      fullName: true,
+      image: true,
+      maritalStatus: true,
+      location: true,
+      maritalVerifyCount: true,
+      redFlag: true,
+      greenFlag: true,
+      yellowFlag: true,
+      createdAt: true,
+      updatedAt: true,
+      userId: true,
+      reviews: true,
+    },
+  });
+
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Data not found");
+  }
+  return result;
+};
+
+const reportProfile = async (
+  payload: TProfileReport,
+  id: string,
+  userId: string
+) => {
+  const profile = await prisma.profile.findFirst({
+    where: { id, isDeleted: false },
+  });
+
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Data not found");
+  }
+
+  const result = await prisma.profileReport.create({
+    data: { ...payload, profileId: id, reporterId: userId },
+  });
+
+  return result;
+};
+
+const getAllReport = async () => {
+  const result = await prisma.profileReport.findMany({
+    select: {
+      id: true,
+      message: true,
+      profileId: true,
+      reporterId: true,
+      profile: true,
+    },
+  });
+
+  return result;
+};
+
+const updateProfile = async (payload: Partial<TProfile>, id: string) => {
+  const profile = await prisma.profile.findFirst({
+    where: { id },
+  });
+
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Profile not found");
+  }
+
+  const result = await prisma.profile.update({
+    where: { id },
+    data: payload,
+  });
+
+  return {
+    message: "Profile deleted successfully",
+  };
+};
+
+const deleteProfile = async (id: string) => {
+  const profile = await prisma.profile.findFirst({
+    where: { id },
+  });
+
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Profile not found");
+  }
+
+  const result = await prisma.profile.update({
+    where: { id },
+    data: { isDeleted: true },
+  });
+
+  return {
+    message: "Profile deleted successfully",
+  };
 };
 
 export const ProfileService = {
   createProfile,
   getAllProfiles,
-  getMyProfile,
+  getSingleProfile,
+  reportProfile,
+  getAllReport,
+  deleteProfile,
 };

@@ -1,8 +1,6 @@
-export const profileFilterableFields = [
-  "email",
-  "searchTerm",
-  "role",
-  "fullName",
-];
+export const profileFilterableFields = ["searchTerm", "role", "fullName"];
 
-export const profileSearchAbleFields = ["email", "fullName"];
+export const profileSearchAbleFields = [
+  "fullName",
+  "location",
+];

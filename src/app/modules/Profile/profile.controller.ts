@@ -26,10 +26,8 @@ const getProfiles = catchAsync(async (req, res) => {
   });
 });
 
-const getMyProfile = catchAsync(async (req, res) => {
-  const { email } = req.user;
-
-  const result = await ProfileService.getMyProfile(email);
+const getSingleProfile = catchAsync(async (req, res) => {
+  const result = await ProfileService.getSingleProfile(req.params.id);
   sendResponse(res, {
     success: true,
     statusCode: 201,
@@ -38,8 +36,42 @@ const getMyProfile = catchAsync(async (req, res) => {
   });
 });
 
+const reportProfile = catchAsync(async (req, res) => {
+  console.log(req.user.id);
+  const result = await ProfileService.reportProfile(
+    req.body,
+    req.params.id,
+    req.user.id
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Reported successfully",
+    data: result,
+  });
+});
+
+const getAllReport = catchAsync(async (req, res) => {
+  const result = await ProfileService.getAllReport();
+  sendResponse(res, {
+    message: "Reports retrieve successfully!",
+    data: result,
+  });
+});
+
+const deleteProfile = catchAsync(async (req, res) => {
+  const result = await ProfileService.deleteProfile(req.params.id);
+  sendResponse(res, {
+    message: "Reports retrieve successfully!",
+    data: result,
+  });
+});
+
 export const ProfileController = {
   createProfile,
   getProfiles,
-  getMyProfile,
+  getSingleProfile,
+  reportProfile,
+  getAllReport,
+  deleteProfile
 };

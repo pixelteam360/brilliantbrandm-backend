@@ -8,7 +8,7 @@ export const MaritalStatusEnum = z.enum([
 
 const CreateProfileValidationSchema = z.object({
   fullName: z.string(),
-  image: z.string(),
+  image: z.any(),
   maritalStatus: MaritalStatusEnum,
   location: z.string(),
   maritalVerifyCount: z.number().int().optional().default(0),
@@ -17,7 +17,12 @@ const CreateProfileValidationSchema = z.object({
   greenFlag: z.number().int().optional().default(0),
 });
 
+export const ProfileReportSchema = z.object({
+  message: z.string(),
+});
+
 
 export const ProfileValidation = {
   CreateProfileValidationSchema,
+  ProfileReportSchema
 };

@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
   fullName      String
-  image         String?   @default("")
-  email         String    @unique
+  image         String?         @default("")
+  email         String          @unique
   password      String
-  isDeleted     Boolean   @default(false)
+  isDeleted     Boolean         @default(false)
   expirationOtp DateTime?
   otp           Int?
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole        @default(USER)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   profile       Profile[]
+  ProfileReport ProfileReport[]
 
   @@map("Users")
 }
@@ -46,12 +47,14 @@ model Profile {
 }
 
 model ProfileReport {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  message   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  profileId String   @db.ObjectId
-  profile   Profile  @relation(fields: [profileId], references: [id])
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  message    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  profileId  String   @db.ObjectId
+  reporterId String   @db.ObjectId
+  profile    Profile  @relation(fields: [profileId], references: [id])
+  reporter   User     @relation(fields: [reporterId], references: [id])
 
   @@map("Profile-Report")
 }

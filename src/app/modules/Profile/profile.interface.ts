@@ -13,7 +13,16 @@ export type TProfile = {
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
-  userId: string
+  userId: string;
+};
+
+export type TProfileReport = {
+  id: string;
+  message: string;
+  createdAt: Date;
+  updatedAt: Date;
+  profileId: string;
+  reporterId: string;
 };
 
 export type TProfileFilterRequest = {
