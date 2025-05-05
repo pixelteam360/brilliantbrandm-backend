@@ -27,7 +27,7 @@ model User {
 model Profile {
   id                 String          @id @default(auto()) @map("_id") @db.ObjectId
   fullName           String
-  image              String?         @default("")
+  image              String
   maritalStatus      MaritalStatus
   location           String
   maritalVerifyCount Int             @default(0)
