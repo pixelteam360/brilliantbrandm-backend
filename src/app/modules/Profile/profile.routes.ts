@@ -37,6 +37,23 @@ router
 router
   .route("/:id")
   .get(ProfileController.getSingleProfile)
+  .patch(
+    auth(UserRole.USER),
+    validateRequest(ProfileValidation.FlagValidationSchema),
+    ProfileController.giveFlagToProfile
+  )
   .delete(auth(UserRole.ADMIN), ProfileController.deleteProfile);
+
+router.get(
+  "/my-given-flag/:id",
+  auth(UserRole.USER),
+  ProfileController.myGivenFlagToProfile
+);
+
+router.post(
+  "/marital-status-varification/:id",
+  auth(UserRole.USER),
+  ProfileController.varifyMaritalStatus
+);
 
 export const ProfileRoutes = router;

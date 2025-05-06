@@ -8,42 +8,68 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(auto()) @map("_id") @db.ObjectId
-  fullName      String
-  image         String?         @default("")
-  email         String          @unique
-  password      String
-  isDeleted     Boolean         @default(false)
-  expirationOtp DateTime?
-  otp           Int?
-  role          UserRole        @default(USER)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  profile       Profile[]
-  ProfileReport ProfileReport[]
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  fullName             String
+  image                String?               @default("")
+  email                String                @unique
+  password             String
+  isDeleted            Boolean               @default(false)
+  expirationOtp        DateTime?
+  otp                  Int?
+  role                 UserRole              @default(USER)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  profile              Profile[]
+  ProfileReport        ProfileReport[]
+  flags                Flag[]
+  maritalVerifications MaritalVerification[]
 
   @@map("Users")
 }
 
 model Profile {
-  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
-  fullName           String
-  image              String
-  maritalStatus      MaritalStatus
-  location           String
-  maritalVerifyCount Int             @default(0)
-  redFlag            Int             @default(0)
-  yellowFlag         Int             @default(0)
-  greenFlag          Int             @default(0)
-  isDeleted          Boolean         @default(false)
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  userId             String          @db.ObjectId
-  user               User            @relation(fields: [userId], references: [id])
-  reviews            Review[]
-  profileReports     ProfileReport[]
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  fullName             String
+  image                String
+  maritalStatus        MaritalStatus
+  location             String
+  maritalVerifyCount   Int                   @default(0)
+  isDeleted            Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  userId               String                @db.ObjectId
+  user                 User                  @relation(fields: [userId], references: [id])
+  reviews              Review[]
+  profileReports       ProfileReport[]
+  flags                Flag[]
+  maritalVerifications MaritalVerification[]
 
   @@map("Profile")
+}
+
+model Flag {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId String   @db.ObjectId
+  userId    String   @db.ObjectId
+  type      FlagType
+  createdAt DateTime @default(now())
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([profileId, userId])
+  @@map("Flag")
+}
+
+model MaritalVerification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  profileId String   @db.ObjectId
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([profileId, userId])
+  @@map("MaritalVerification")
 }
 
 model ProfileReport {

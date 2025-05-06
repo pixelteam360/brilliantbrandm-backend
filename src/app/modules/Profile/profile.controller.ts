@@ -59,6 +59,29 @@ const getAllReport = catchAsync(async (req, res) => {
   });
 });
 
+const giveFlagToProfile = catchAsync(async (req, res) => {
+  const result = await ProfileService.giveFlagToProfile(
+    req.body,
+    req.user.id,
+    req.params.id
+  );
+  sendResponse(res, {
+    message: "Flag added successfully!",
+    data: result,
+  });
+});
+
+const myGivenFlagToProfile = catchAsync(async (req, res) => {
+  const result = await ProfileService.myGivenFlagToProfile(
+    req.params.id,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Flag added successfully!",
+    data: result,
+  });
+});
+
 const deleteProfile = catchAsync(async (req, res) => {
   const result = await ProfileService.deleteProfile(req.params.id);
   sendResponse(res, {
@@ -67,11 +90,26 @@ const deleteProfile = catchAsync(async (req, res) => {
   });
 });
 
+const varifyMaritalStatus = catchAsync(async (req, res) => {
+  const result = await ProfileService.varifyMaritalStatus(
+    req.params.id,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Success marital status verification",
+    data: result,
+  });
+});
+
+
 export const ProfileController = {
   createProfile,
   getProfiles,
   getSingleProfile,
   reportProfile,
   getAllReport,
-  deleteProfile
+  giveFlagToProfile,
+  myGivenFlagToProfile,
+  deleteProfile,
+  varifyMaritalStatus
 };

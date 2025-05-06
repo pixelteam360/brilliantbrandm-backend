@@ -1,28 +1,25 @@
 import { z } from "zod";
 
-export const MaritalStatusEnum = z.enum([
-  "SINGLE",
-  "MARRIED",
-  "IN_RELATIONSHIP",
-]);
+const MaritalStatusEnum = z.enum(["SINGLE", "MARRIED", "IN_RELATIONSHIP"]);
 
 const CreateProfileValidationSchema = z.object({
   fullName: z.string(),
   image: z.any(),
   maritalStatus: MaritalStatusEnum,
   location: z.string(),
-  maritalVerifyCount: z.number().int().optional().default(0),
-  redFlag: z.number().int().optional().default(0),
-  yellowFlag: z.number().int().optional().default(0),
-  greenFlag: z.number().int().optional().default(0),
+  flagType: z.enum(["RED", "GREEN", "YELLOW"]).optional(),
 });
 
-export const ProfileReportSchema = z.object({
+const ProfileReportSchema = z.object({
   message: z.string(),
 });
 
+const FlagValidationSchema = z.object({
+  type: z.enum(["RED", "GREEN", "YELLOW"]),
+});
 
 export const ProfileValidation = {
   CreateProfileValidationSchema,
-  ProfileReportSchema
+  ProfileReportSchema,
+  FlagValidationSchema,
 };

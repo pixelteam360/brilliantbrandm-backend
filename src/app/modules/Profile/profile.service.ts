@@ -1,8 +1,7 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { IPaginationOptions } from "../../../interfaces/paginations";
-import { paginationHelper } from "../../../helpars/paginationHelper";
-import { Prisma, Profile } from "@prisma/client";
+import { FlagType, Prisma, Profile } from "@prisma/client";
 import {
   TProfile,
   TProfileFilterRequest,
@@ -12,7 +11,13 @@ import { profileSearchAbleFields } from "./profile.costant";
 import { fileUploader } from "../../../helpars/fileUploader";
 import httpStatus from "http-status";
 
-const createProfile = async (payload: TProfile, imageFile: any, id: string) => {
+const createProfile = async (
+  payload: TProfile,
+  imageFile: any,
+  userId: string
+) => {
+  const { flagType, ...restData } = payload;
+
   const result = await prisma.$transaction(async (prisma) => {
     let image = "";
     if (imageFile) {
@@ -20,22 +25,28 @@ const createProfile = async (payload: TProfile, imageFile: any, id: string) => {
     }
 
     const createProfile = await prisma.profile.create({
-      data: { ...payload, userId: id, image },
+      data: { ...restData, userId, image },
       select: {
         id: true,
         fullName: true,
         image: true,
         maritalStatus: true,
         location: true,
-        maritalVerifyCount: true,
-        redFlag: true,
-        greenFlag: true,
-        yellowFlag: true,
         createdAt: true,
         updatedAt: true,
         userId: true,
       },
     });
+
+    if (flagType) {
+      await prisma.flag.create({
+        data: {
+          profileId: createProfile.id,
+          userId,
+          type: flagType,
+        },
+      });
+    }
 
     return createProfile;
   });
@@ -90,10 +101,6 @@ const getAllProfiles = async (
       image: true,
       maritalStatus: true,
       location: true,
-      maritalVerifyCount: true,
-      redFlag: true,
-      greenFlag: true,
-      yellowFlag: true,
       createdAt: true,
       updatedAt: true,
       userId: true,
@@ -127,10 +134,6 @@ const getSingleProfile = async (id: string) => {
       image: true,
       maritalStatus: true,
       location: true,
-      maritalVerifyCount: true,
-      redFlag: true,
-      greenFlag: true,
-      yellowFlag: true,
       createdAt: true,
       updatedAt: true,
       userId: true,
@@ -141,7 +144,30 @@ const getSingleProfile = async (id: string) => {
   if (!result) {
     throw new ApiError(httpStatus.NOT_FOUND, "Data not found");
   }
-  return result;
+
+  const maritalVerifyCount = await prisma.maritalVerification.count({
+    where: { profileId: id },
+  });
+
+  const flagCount = await prisma.flag.groupBy({
+    by: ["type"],
+    where: { profileId: id },
+    _count: { type: true },
+  });
+
+  const counts = {
+    redFlag: 0,
+    yellowFlag: 0,
+    greenFlag: 0,
+  };
+
+  flagCount.forEach((flag) => {
+    if (flag.type === "RED") counts.redFlag = flag._count.type;
+    if (flag.type === "GREEN") counts.greenFlag = flag._count.type;
+    if (flag.type === "YELLOW") counts.yellowFlag = flag._count.type;
+  });
+
+  return { ...result, ...counts, maritalVerifyCount };
 };
 
 const reportProfile = async (
@@ -178,23 +204,67 @@ const getAllReport = async () => {
   return result;
 };
 
-const updateProfile = async (payload: Partial<TProfile>, id: string) => {
+const giveFlagToProfile = async (
+  flagType: { type: FlagType },
+  userId: string,
+  profileId: string
+) => {
   const profile = await prisma.profile.findFirst({
-    where: { id },
+    where: { userId },
   });
 
   if (!profile) {
     throw new ApiError(httpStatus.NOT_FOUND, "Profile not found");
   }
 
-  const result = await prisma.profile.update({
-    where: { id },
-    data: payload,
+  const existingFlag = await prisma.flag.findFirst({
+    where: { userId, profileId },
   });
 
-  return {
-    message: "Profile deleted successfully",
-  };
+  if (existingFlag) {
+    if (existingFlag.type === flagType.type) {
+      await prisma.flag.delete({
+        where: { id: existingFlag.id },
+      });
+      return {
+        message: `Removed ${flagType.type} flag from profile`,
+        flagRemoved: true,
+      };
+    } else {
+      await prisma.flag.update({
+        where: { id: existingFlag.id },
+        data: { type: flagType.type },
+      });
+      return {
+        message: `Changed flag to ${flagType.type} for profile`,
+        flagUpdated: true,
+      };
+    }
+  } else {
+    await prisma.flag.create({
+      data: {
+        profileId,
+        userId,
+        type: flagType.type,
+      },
+    });
+    return {
+      message: `Added ${flagType.type} flag to profile`,
+      flagAdded: true,
+    };
+  }
+};
+
+const myGivenFlagToProfile = async (profileId: string, userId: string) => {
+  const result = await prisma.flag.findFirst({
+    where: { profileId, userId },
+  });
+
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, "You didn't give any flag");
+  }
+
+  return result;
 };
 
 const deleteProfile = async (id: string) => {
@@ -216,11 +286,49 @@ const deleteProfile = async (id: string) => {
   };
 };
 
+const varifyMaritalStatus = async (profileId: string, userId: string) => {
+  const profile = await prisma.profile.findFirst({
+    where: { id: profileId, isDeleted: false },
+  });
+
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Profile not found");
+  }
+
+  const existingVerification = await prisma.maritalVerification.findFirst({
+    where: {
+      profileId,
+      userId,
+    },
+  });
+
+  if (existingVerification) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You have already verifyed the status"
+    );
+  }
+
+  await prisma.maritalVerification.create({
+    data: {
+      profileId,
+      userId,
+    },
+  });
+  return {
+    message: "Success marital status verification",
+    verificationAdded: true,
+  };
+};
+
 export const ProfileService = {
   createProfile,
   getAllProfiles,
   getSingleProfile,
   reportProfile,
   getAllReport,
+  giveFlagToProfile,
+  myGivenFlagToProfile,
   deleteProfile,
+  varifyMaritalStatus,
 };

@@ -1,4 +1,4 @@
-import { MaritalStatus } from "@prisma/client";
+import { FlagType, MaritalStatus } from "@prisma/client";
 
 export type TProfile = {
   id?: string;
@@ -6,14 +6,11 @@ export type TProfile = {
   image?: string;
   maritalStatus: MaritalStatus;
   location: string;
-  maritalVerifyCount: number;
-  redFlag: number;
-  yellowFlag: number;
-  greenFlag: number;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
+  flagType: FlagType;
 };
 
 export type TProfileReport = {
