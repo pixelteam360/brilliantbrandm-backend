@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const auth_routes_1 = require("../modules/Auth/auth.routes");
 const user_routes_1 = require("../modules/User/user.routes");
 const profile_routes_1 = require("../modules/Profile/profile.routes");
+const review_routes_1 = require("../modules/Review/review.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -20,6 +21,10 @@ const moduleRoutes = [
     {
         path: "/profiles",
         route: profile_routes_1.ProfileRoutes,
+    },
+    {
+        path: "/reviews",
+        route: review_routes_1.ReviewRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

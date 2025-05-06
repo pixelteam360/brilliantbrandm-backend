@@ -89,7 +89,7 @@ const forgotPassword = async (payload: { email: string }) => {
   });
 
   // Generate a new OTP
-  const otp = Number(crypto.randomInt(10000, 99999));
+  const otp = Number(crypto.randomInt(1000, 9999));
 
   // Set OTP expiration time to 10 minutes from now
   const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
