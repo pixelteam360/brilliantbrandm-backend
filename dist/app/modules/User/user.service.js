@@ -54,6 +54,7 @@ const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const user_costant_1 = require("./user.costant");
 const config_1 = __importDefault(require("../../../config"));
 const fileUploader_1 = require("../../../helpars/fileUploader");
+const jwtHelpers_1 = require("../../../helpars/jwtHelpers");
 const createUserIntoDb = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield prisma_1.default.user.findFirst({
         where: {
@@ -66,7 +67,7 @@ const createUserIntoDb = (payload) => __awaiter(void 0, void 0, void 0, function
         }
     }
     const hashedPassword = yield bcrypt.hash(payload.password, Number(config_1.default.bcrypt_salt_rounds));
-    const result = yield prisma_1.default.user.create({
+    const profileData = yield prisma_1.default.user.create({
         data: Object.assign(Object.assign({}, payload), { password: hashedPassword }),
         select: {
             id: true,
@@ -76,7 +77,12 @@ const createUserIntoDb = (payload) => __awaiter(void 0, void 0, void 0, function
             updatedAt: true,
         },
     });
-    return result;
+    const accessToken = jwtHelpers_1.jwtHelpers.generateToken({
+        id: profileData.id,
+        email: profileData.email,
+        role: profileData.role,
+    }, config_1.default.jwt.jwt_secret, config_1.default.jwt.expires_in);
+    return Object.assign(Object.assign({}, profileData), { token: accessToken });
 });
 const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);

@@ -86,7 +86,7 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
         });
     }
     const whereConditons = { AND: andCondions };
-    const result = yield prisma_1.default.profile.findMany({
+    const profiles = yield prisma_1.default.profile.findMany({
         where: Object.assign(Object.assign({}, whereConditons), { isDeleted: false }),
         orderBy: options.sortBy && options.sortOrder
             ? {
@@ -109,9 +109,32 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
     // const total = await prisma.profile.count({
     //   where: whereConditons,
     // });
-    if (!result || result.length === 0) {
+    if (!profiles || profiles.length === 0) {
         throw new ApiErrors_1.default(404, "No active Profiles found");
     }
+    const profileIds = profiles.map((profile) => profile.id);
+    const flagCount = yield prisma_1.default.flag.groupBy({
+        by: ["profileId", "type"],
+        where: {
+            profileId: { in: profileIds },
+        },
+        _count: { type: true },
+    });
+    const flagCountMap = {};
+    profiles.forEach((profile) => {
+        flagCountMap[profile.id] = { redFlag: 0, yellowFlag: 0, greenFlag: 0 };
+    });
+    flagCount.forEach((flag) => {
+        if (flagCountMap[flag.profileId]) {
+            if (flag.type === "RED")
+                flagCountMap[flag.profileId].redFlag = flag._count.type;
+            if (flag.type === "GREEN")
+                flagCountMap[flag.profileId].greenFlag = flag._count.type;
+            if (flag.type === "YELLOW")
+                flagCountMap[flag.profileId].yellowFlag = flag._count.type;
+        }
+    });
+    const result = profiles.map((profile) => (Object.assign(Object.assign({}, profile), { flagCounts: flagCountMap[profile.id] })));
     // return {
     //   meta: {
     //     page,
