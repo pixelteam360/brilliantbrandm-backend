@@ -8,6 +8,8 @@ import { userSearchAbleFields } from "./user.costant";
 import config from "../../../config";
 import { fileUploader } from "../../../helpars/fileUploader";
 import { IUserFilterRequest, TUser } from "./user.interface";
+import { jwtHelpers } from "../../../helpars/jwtHelpers";
+import { Secret } from "jsonwebtoken";
 
 const createUserIntoDb = async (payload: TUser) => {
   const existingUser = await prisma.user.findFirst({
@@ -29,7 +31,7 @@ const createUserIntoDb = async (payload: TUser) => {
     Number(config.bcrypt_salt_rounds)
   );
 
-  const result = await prisma.user.create({
+  const profileData = await prisma.user.create({
     data: { ...payload, password: hashedPassword },
     select: {
       id: true,
@@ -40,7 +42,17 @@ const createUserIntoDb = async (payload: TUser) => {
     },
   });
 
-  return result;
+  const accessToken = jwtHelpers.generateToken(
+    {
+      id: profileData.id,
+      email: profileData.email,
+      role: profileData.role,
+    },
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expires_in as string
+  );
+
+  return { ...profileData, token: accessToken };
 };
 
 const getUsersFromDb = async (

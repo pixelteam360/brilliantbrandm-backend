@@ -85,7 +85,7 @@ const getAllProfiles = async (
   }
   const whereConditons: Prisma.ProfileWhereInput = { AND: andCondions };
 
-  const result = await prisma.profile.findMany({
+  const profiles = await prisma.profile.findMany({
     where: { ...whereConditons, isDeleted: false },
     orderBy:
       options.sortBy && options.sortOrder
@@ -110,9 +110,45 @@ const getAllProfiles = async (
   //   where: whereConditons,
   // });
 
-  if (!result || result.length === 0) {
+  if (!profiles || profiles.length === 0) {
     throw new ApiError(404, "No active Profiles found");
   }
+
+  const profileIds = profiles.map((profile) => profile.id);
+
+  const flagCount = await prisma.flag.groupBy({
+    by: ["profileId", "type"],
+    where: {
+      profileId: { in: profileIds },
+    },
+    _count: { type: true },
+  });
+
+  const flagCountMap: Record<
+    string,
+    { redFlag: number; greenFlag: number; yellowFlag: number }
+  > = {};
+
+  profiles.forEach((profile) => {
+    flagCountMap[profile.id] = { redFlag: 0, yellowFlag: 0, greenFlag: 0 };
+  });
+
+  flagCount.forEach((flag) => {
+    if (flagCountMap[flag.profileId]) {
+      if (flag.type === "RED")
+        flagCountMap[flag.profileId].redFlag = flag._count.type;
+      if (flag.type === "GREEN")
+        flagCountMap[flag.profileId].greenFlag = flag._count.type;
+      if (flag.type === "YELLOW")
+        flagCountMap[flag.profileId].yellowFlag = flag._count.type;
+    }
+  });
+
+  const result = profiles.map((profile) => ({
+    ...profile,
+    flagCounts: flagCountMap[profile.id],
+  }));
+
   // return {
   //   meta: {
   //     page,
