@@ -96,7 +96,7 @@ const forgotPassword = (payload) => __awaiter(void 0, void 0, void 0, function* 
         },
     });
     // Generate a new OTP
-    const otp = Number(crypto_1.default.randomInt(10000, 99999));
+    const otp = Number(crypto_1.default.randomInt(1000, 9999));
     // Set OTP expiration time to 10 minutes from now
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     // Create the email content

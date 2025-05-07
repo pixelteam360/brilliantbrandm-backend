@@ -17,7 +17,6 @@ router
     ReviewController.createReview
   );
 
-
 router
   .route("/reports")
   .get(auth(UserRole.ADMIN), ReviewController.getAllReviewReport)
@@ -27,12 +26,9 @@ router
     ReviewController.reportReview
   );
 
-  
 router
-.route("/:id")
-.get(ReviewController.getSingleReview)
-.delete(auth(UserRole.ADMIN), ReviewController.deleteReview);
-
-// router.route("/report/:id");
+  .route("/:id")
+  .get(ReviewController.getSingleReview)
+  .delete(auth(UserRole.ADMIN), ReviewController.deleteReview);
 
 export const ReviewRoutes = router;

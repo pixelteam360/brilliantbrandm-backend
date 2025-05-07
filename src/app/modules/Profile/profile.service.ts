@@ -1,7 +1,7 @@
 import prisma from "../../../shared/prisma";
 import ApiError from "../../../errors/ApiErrors";
 import { IPaginationOptions } from "../../../interfaces/paginations";
-import { FlagType, Prisma, Profile } from "@prisma/client";
+import { FlagType, Prisma } from "@prisma/client";
 import {
   TProfile,
   TProfileFilterRequest,
@@ -10,12 +10,21 @@ import {
 import { profileSearchAbleFields } from "./profile.costant";
 import { fileUploader } from "../../../helpars/fileUploader";
 import httpStatus from "http-status";
+import { paginationHelper } from "../../../helpars/paginationHelper";
 
 const createProfile = async (
   payload: TProfile,
   imageFile: any,
   userId: string
 ) => {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+  });
+
+  if (user?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, "User is blocked");
+  }
+
   const { flagType, ...restData } = payload;
 
   const result = await prisma.$transaction(async (prisma) => {
@@ -58,7 +67,7 @@ const getAllProfiles = async (
   params: TProfileFilterRequest,
   options: IPaginationOptions
 ) => {
-  // const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, ...filterData } = params;
 
   const andCondions: Prisma.ProfileWhereInput[] = [];
@@ -106,9 +115,9 @@ const getAllProfiles = async (
       userId: true,
     },
   });
-  // const total = await prisma.profile.count({
-  //   where: whereConditons,
-  // });
+  const total = await prisma.profile.count({
+    where: whereConditons,
+  });
 
   if (!profiles || profiles.length === 0) {
     throw new ApiError(404, "No active Profiles found");
@@ -144,21 +153,42 @@ const getAllProfiles = async (
     }
   });
 
+  const verificationCounts = await prisma.maritalVerification.groupBy({
+    by: ["profileId"],
+    where: {
+      profileId: { in: profileIds },
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  const verificationCountMap: Record<string, number> = {};
+
+  profiles.forEach((profile) => {
+    verificationCountMap[profile.id] = 0;
+  });
+
+  verificationCounts.forEach((verification) => {
+    if (verification.profileId in verificationCountMap) {
+      verificationCountMap[verification.profileId] = verification._count._all;
+    }
+  });
+
   const result = profiles.map((profile) => ({
     ...profile,
     flagCounts: flagCountMap[profile.id],
+    maritalVerifyCount: verificationCountMap[profile.id],
   }));
 
-  // return {
-  //   meta: {
-  //     page,
-  //     limit,
-  //     total,
-  //   },
-  //   data: result,
-  // };
-
-  return result;
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const getSingleProfile = async (id: string) => {
