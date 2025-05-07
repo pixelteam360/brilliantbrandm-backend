@@ -96,6 +96,8 @@ const getAllProfiles = async (
 
   const profiles = await prisma.profile.findMany({
     where: { ...whereConditons, isDeleted: false },
+    skip,
+    take: limit,
     orderBy:
       options.sortBy && options.sortOrder
         ? {
@@ -203,7 +205,14 @@ const getSingleProfile = async (id: string) => {
       createdAt: true,
       updatedAt: true,
       userId: true,
-      reviews: true,
+      reviews: {
+        where: { isDeleted: false },
+        select: {
+          id: true,
+          flag: true,
+          message: true,
+        },
+      },
     },
   });
 

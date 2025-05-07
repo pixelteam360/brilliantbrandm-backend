@@ -68,6 +68,7 @@ const getCommunityPostsFromDb = async (
   const result = await prisma.communityPost.findMany({
     where: whereConditons,
     skip,
+    take: limit,
     orderBy:
       options.sortBy && options.sortOrder
         ? {

@@ -8,6 +8,7 @@ const auth_routes_1 = require("../modules/Auth/auth.routes");
 const user_routes_1 = require("../modules/User/user.routes");
 const profile_routes_1 = require("../modules/Profile/profile.routes");
 const review_routes_1 = require("../modules/Review/review.routes");
+const communityPost_routes_1 = require("../modules/Community/communityPost.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -25,6 +26,10 @@ const moduleRoutes = [
     {
         path: "/reviews",
         route: review_routes_1.ReviewRoutes,
+    },
+    {
+        path: "/community-post",
+        route: communityPost_routes_1.CommunityPostRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

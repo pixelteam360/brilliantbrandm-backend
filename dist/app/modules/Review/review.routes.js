@@ -23,5 +23,4 @@ router
     .route("/:id")
     .get(review_controller_1.ReviewController.getSingleReview)
     .delete((0, auth_1.default)(client_1.UserRole.ADMIN), review_controller_1.ReviewController.deleteReview);
-// router.route("/report/:id");
 exports.ReviewRoutes = router;

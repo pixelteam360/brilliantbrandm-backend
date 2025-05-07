@@ -29,7 +29,14 @@ const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const profile_costant_1 = require("./profile.costant");
 const fileUploader_1 = require("../../../helpars/fileUploader");
 const http_status_1 = __importDefault(require("http-status"));
+const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const createProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findFirst({
+        where: { id: userId },
+    });
+    if (user === null || user === void 0 ? void 0 : user.isDeleted) {
+        throw new ApiErrors_1.default(http_status_1.default.FORBIDDEN, "User is blocked");
+    }
     const { flagType } = payload, restData = __rest(payload, ["flagType"]);
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
         let image = "";
@@ -63,7 +70,7 @@ const createProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, 
     return result;
 });
 const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
-    // const { page, limit, skip } = paginationHelper.calculatePagination(options);
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
     const andCondions = [];
     if (params.searchTerm) {
@@ -106,9 +113,9 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
             userId: true,
         },
     });
-    // const total = await prisma.profile.count({
-    //   where: whereConditons,
-    // });
+    const total = yield prisma_1.default.profile.count({
+        where: whereConditons,
+    });
     if (!profiles || profiles.length === 0) {
         throw new ApiErrors_1.default(404, "No active Profiles found");
     }
@@ -134,16 +141,33 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
                 flagCountMap[flag.profileId].yellowFlag = flag._count.type;
         }
     });
-    const result = profiles.map((profile) => (Object.assign(Object.assign({}, profile), { flagCounts: flagCountMap[profile.id] })));
-    // return {
-    //   meta: {
-    //     page,
-    //     limit,
-    //     total,
-    //   },
-    //   data: result,
-    // };
-    return result;
+    const verificationCounts = yield prisma_1.default.maritalVerification.groupBy({
+        by: ["profileId"],
+        where: {
+            profileId: { in: profileIds },
+        },
+        _count: {
+            _all: true,
+        },
+    });
+    const verificationCountMap = {};
+    profiles.forEach((profile) => {
+        verificationCountMap[profile.id] = 0;
+    });
+    verificationCounts.forEach((verification) => {
+        if (verification.profileId in verificationCountMap) {
+            verificationCountMap[verification.profileId] = verification._count._all;
+        }
+    });
+    const result = profiles.map((profile) => (Object.assign(Object.assign({}, profile), { flagCounts: flagCountMap[profile.id], maritalVerifyCount: verificationCountMap[profile.id] })));
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
 });
 const getSingleProfile = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.profile.findUnique({
