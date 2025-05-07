@@ -95,6 +95,8 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
     const whereConditons = { AND: andCondions };
     const profiles = yield prisma_1.default.profile.findMany({
         where: Object.assign(Object.assign({}, whereConditons), { isDeleted: false }),
+        skip,
+        take: limit,
         orderBy: options.sortBy && options.sortOrder
             ? {
                 [options.sortBy]: options.sortOrder,
@@ -181,7 +183,14 @@ const getSingleProfile = (id) => __awaiter(void 0, void 0, void 0, function* () 
             createdAt: true,
             updatedAt: true,
             userId: true,
-            reviews: true,
+            reviews: {
+                where: { isDeleted: false },
+                select: {
+                    id: true,
+                    flag: true,
+                    message: true,
+                },
+            },
         },
     });
     if (!result) {

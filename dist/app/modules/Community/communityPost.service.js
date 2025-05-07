@@ -68,6 +68,7 @@ const getCommunityPostsFromDb = (params, options) => __awaiter(void 0, void 0, v
     const result = yield prisma_1.default.communityPost.findMany({
         where: whereConditons,
         skip,
+        take: limit,
         orderBy: options.sortBy && options.sortOrder
             ? {
                 [options.sortBy]: options.sortOrder,
