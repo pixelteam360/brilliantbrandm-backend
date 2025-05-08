@@ -111,6 +111,7 @@ const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fu
     const result = yield prisma_1.default.user.findMany({
         where: whereConditons,
         skip,
+        take: limit,
         orderBy: options.sortBy && options.sortOrder
             ? {
                 [options.sortBy]: options.sortOrder,
@@ -130,9 +131,6 @@ const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fu
     const total = yield prisma_1.default.user.count({
         where: whereConditons,
     });
-    if (!result || result.length === 0) {
-        throw new ApiErrors_1.default(404, "No active users found");
-    }
     return {
         meta: {
             page,

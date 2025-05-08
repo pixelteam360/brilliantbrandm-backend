@@ -30,4 +30,10 @@ router
     userController.updateProfile
   );
 
+router.get(
+  "/admin-overview",
+  auth(UserRole.ADMIN),
+  userController.adminOverView
+);
+
 export const UserRoutes = router;

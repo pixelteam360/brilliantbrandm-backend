@@ -118,9 +118,6 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
     const total = yield prisma_1.default.profile.count({
         where: whereConditons,
     });
-    if (!profiles || profiles.length === 0) {
-        throw new ApiErrors_1.default(404, "No active Profiles found");
-    }
     const profileIds = profiles.map((profile) => profile.id);
     const flagCount = yield prisma_1.default.flag.groupBy({
         by: ["profileId", "type"],

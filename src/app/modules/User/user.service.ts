@@ -156,9 +156,23 @@ const updateProfile = async (payload: User, imageFile: any, userId: string) => {
   return result;
 };
 
+const adminOverView = async () => {
+  const totalUser = await prisma.user.count({
+    where: { isDeleted: false },
+  });
+  const totalProfile = await prisma.profile.count({
+    where: { isDeleted: false },
+  });
+  const totalProfileReport = await prisma.profileReport.count();
+  const totalReviewReport = await prisma.reviewReport.count();
+
+  return { totalUser, totalProfile, totalProfileReport, totalReviewReport };
+};
+
 export const userService = {
   createUserIntoDb,
   getUsersFromDb,
   getMyProfile,
   updateProfile,
+  adminOverView
 };

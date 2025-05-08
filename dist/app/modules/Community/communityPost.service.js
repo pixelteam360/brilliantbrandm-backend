@@ -25,7 +25,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommunityPostService = void 0;
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
-const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const fileUploader_1 = require("../../../helpars/fileUploader");
 const communityPost_costant_1 = require("./communityPost.costant");
@@ -91,9 +90,6 @@ const getCommunityPostsFromDb = (params, options) => __awaiter(void 0, void 0, v
     const total = yield prisma_1.default.communityPost.count({
         where: whereConditons,
     });
-    if (!result || result.length === 0) {
-        throw new ApiErrors_1.default(404, "No active Community Posts found");
-    }
     return {
         meta: {
             page,

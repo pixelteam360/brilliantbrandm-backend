@@ -47,9 +47,18 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
+const adminOverView = catchAsync(async (req, res) => {
+  const result = await userService.adminOverView();
+  sendResponse(res, {
+    message: "Overview data retrieve successfully!",
+    data: result,
+  });
+});
+
 export const userController = {
   createUser,
   getUsers,
   getMyProfile,
   updateProfile,
+  adminOverView,
 };
