@@ -123,12 +123,13 @@ const getAllProfiles = async (
 
   const profileIds = profiles.map((profile) => profile.id);
 
-  const flagCount = await prisma.flag.groupBy({
-    by: ["profileId", "type"],
+  const flagCount = await prisma.review.groupBy({
+    by: ["profileId", "flag"],
     where: {
       profileId: { in: profileIds },
+      isDeleted: false,
     },
-    _count: { type: true },
+    _count: { flag: true },
   });
 
   const flagCountMap: Record<
@@ -142,12 +143,12 @@ const getAllProfiles = async (
 
   flagCount.forEach((flag) => {
     if (flagCountMap[flag.profileId]) {
-      if (flag.type === "RED")
-        flagCountMap[flag.profileId].redFlag = flag._count.type;
-      if (flag.type === "GREEN")
-        flagCountMap[flag.profileId].greenFlag = flag._count.type;
-      if (flag.type === "YELLOW")
-        flagCountMap[flag.profileId].yellowFlag = flag._count.type;
+      if (flag.flag === "RED")
+        flagCountMap[flag.profileId].redFlag = flag._count.flag;
+      if (flag.flag === "GREEN")
+        flagCountMap[flag.profileId].greenFlag = flag._count.flag;
+      if (flag.flag === "YELLOW")
+        flagCountMap[flag.profileId].yellowFlag = flag._count.flag;
     }
   });
 
@@ -220,10 +221,10 @@ const getSingleProfile = async (id: string) => {
     where: { profileId: id },
   });
 
-  const flagCount = await prisma.flag.groupBy({
-    by: ["type"],
-    where: { profileId: id },
-    _count: { type: true },
+  const flagCount = await prisma.review.groupBy({
+    by: ["flag"],
+    where: { profileId: id, isDeleted: false },
+    _count: { flag: true },
   });
 
   const counts = {
@@ -233,9 +234,9 @@ const getSingleProfile = async (id: string) => {
   };
 
   flagCount.forEach((flag) => {
-    if (flag.type === "RED") counts.redFlag = flag._count.type;
-    if (flag.type === "GREEN") counts.greenFlag = flag._count.type;
-    if (flag.type === "YELLOW") counts.yellowFlag = flag._count.type;
+    if (flag.flag === "RED") counts.redFlag = flag._count.flag;
+    if (flag.flag === "GREEN") counts.greenFlag = flag._count.flag;
+    if (flag.flag === "YELLOW") counts.yellowFlag = flag._count.flag;
   });
 
   return { ...result, ...counts, maritalVerifyCount };

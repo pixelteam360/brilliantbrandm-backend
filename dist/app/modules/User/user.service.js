@@ -149,6 +149,7 @@ const getMyProfile = (userEmail) => __awaiter(void 0, void 0, void 0, function* 
             id: true,
             fullName: true,
             email: true,
+            image: true,
             createdAt: true,
             updatedAt: true,
         },
@@ -185,5 +186,5 @@ exports.userService = {
     getUsersFromDb,
     getMyProfile,
     updateProfile,
-    adminOverView
+    adminOverView,
 };
