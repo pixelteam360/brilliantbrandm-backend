@@ -52,9 +52,17 @@ const updateProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
+const adminOverView = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.userService.adminOverView();
+    (0, sendResponse_1.default)(res, {
+        message: "Overview data retrieve successfully!",
+        data: result,
+    });
+}));
 exports.userController = {
     createUser,
     getUsers,
     getMyProfile,
     updateProfile,
+    adminOverView,
 };

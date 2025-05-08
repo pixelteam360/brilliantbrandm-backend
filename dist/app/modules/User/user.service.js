@@ -169,9 +169,21 @@ const updateProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, 
     }));
     return result;
 });
+const adminOverView = () => __awaiter(void 0, void 0, void 0, function* () {
+    const totalUser = yield prisma_1.default.user.count({
+        where: { isDeleted: false },
+    });
+    const totalProfile = yield prisma_1.default.profile.count({
+        where: { isDeleted: false },
+    });
+    const totalProfileReport = yield prisma_1.default.profileReport.count();
+    const totalReviewReport = yield prisma_1.default.reviewReport.count();
+    return { totalUser, totalProfile, totalProfileReport, totalReviewReport };
+});
 exports.userService = {
     createUserIntoDb,
     getUsersFromDb,
     getMyProfile,
     updateProfile,
+    adminOverView
 };

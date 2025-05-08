@@ -130,6 +130,7 @@ const getMyProfile = async (userEmail: string) => {
       id: true,
       fullName: true,
       email: true,
+      image: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -174,5 +175,5 @@ export const userService = {
   getUsersFromDb,
   getMyProfile,
   updateProfile,
-  adminOverView
+  adminOverView,
 };
