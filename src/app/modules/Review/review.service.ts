@@ -98,6 +98,7 @@ const getAllReviewReport = async () => {
       reviewId: true,
       review: {
         select: {
+          message: true,
           profile: {
             select: {
               image: true,
