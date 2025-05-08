@@ -94,9 +94,6 @@ const getCommunityPostsFromDb = async (
     where: whereConditons,
   });
 
-  if (!result || result.length === 0) {
-    throw new ApiError(404, "No active Community Posts found");
-  }
   return {
     meta: {
       page,

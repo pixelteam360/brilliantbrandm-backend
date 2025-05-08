@@ -89,6 +89,7 @@ const getUsersFromDb = async (
   const result = await prisma.user.findMany({
     where: whereConditons,
     skip,
+    take: limit,
     orderBy:
       options.sortBy && options.sortOrder
         ? {
@@ -110,9 +111,6 @@ const getUsersFromDb = async (
     where: whereConditons,
   });
 
-  if (!result || result.length === 0) {
-    throw new ApiError(404, "No active users found");
-  }
   return {
     meta: {
       page,

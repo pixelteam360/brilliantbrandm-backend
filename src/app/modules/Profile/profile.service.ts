@@ -121,10 +121,6 @@ const getAllProfiles = async (
     where: whereConditons,
   });
 
-  if (!profiles || profiles.length === 0) {
-    throw new ApiError(404, "No active Profiles found");
-  }
-
   const profileIds = profiles.map((profile) => profile.id);
 
   const flagCount = await prisma.flag.groupBy({
