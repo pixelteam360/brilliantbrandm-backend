@@ -95,7 +95,15 @@ const getAllReviewReport = () => __awaiter(void 0, void 0, void 0, function* () 
             id: true,
             message: true,
             reviewId: true,
-            review: true,
+            review: {
+                select: {
+                    profile: {
+                        select: {
+                            image: true,
+                        },
+                    },
+                },
+            },
         },
         orderBy: { createdAt: "desc" },
     });

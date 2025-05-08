@@ -24,7 +24,7 @@ model User {
   ProfileReport        ProfileReport[]
   flags                Flag[]
   maritalVerifications MaritalVerification[]
-  CommunityPostts      CommunityPostt[]
+  CommunityPosts       CommunityPost[]
 
   @@map("Users")
 }
@@ -112,7 +112,7 @@ model ReviewReport {
   @@map("Review-Report")
 }
 
-model CommunityPostt {
+model CommunityPost {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   message   String
   images    String[]
