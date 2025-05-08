@@ -96,7 +96,15 @@ const getAllReviewReport = async () => {
       id: true,
       message: true,
       reviewId: true,
-      review: true,
+      review: {
+        select: {
+          profile: {
+            select: {
+              image: true,
+            },
+          },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });
