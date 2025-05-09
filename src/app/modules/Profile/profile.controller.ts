@@ -26,6 +26,21 @@ const getProfiles = catchAsync(async (req, res) => {
   });
 });
 
+const getMyProfiles = catchAsync(async (req, res) => {
+  const filters = pick(req.query, profileFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+  const result = await ProfileService.getMyProfiles(
+    filters,
+    options,
+    req.user.id
+  );
+  sendResponse(res, {
+    message: "Profiles retrieve successfully!",
+    data: result,
+  });
+});
+
 const getSingleProfile = catchAsync(async (req, res) => {
   const result = await ProfileService.getSingleProfile(req.params.id);
   sendResponse(res, {
@@ -101,15 +116,15 @@ const varifyMaritalStatus = catchAsync(async (req, res) => {
   });
 });
 
-
 export const ProfileController = {
   createProfile,
   getProfiles,
+  getMyProfiles,
   getSingleProfile,
   reportProfile,
   getAllReport,
   giveFlagToProfile,
   myGivenFlagToProfile,
   deleteProfile,
-  varifyMaritalStatus
+  varifyMaritalStatus,
 };

@@ -97,6 +97,7 @@ const getAllReviewReport = () => __awaiter(void 0, void 0, void 0, function* () 
             reviewId: true,
             review: {
                 select: {
+                    message: true,
                     profile: {
                         select: {
                             image: true,

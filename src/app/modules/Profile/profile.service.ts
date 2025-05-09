@@ -118,7 +118,7 @@ const getAllProfiles = async (
     },
   });
   const total = await prisma.profile.count({
-    where: whereConditons,
+    where: { ...whereConditons, isDeleted: false },
   });
 
   const profileIds = profiles.map((profile) => profile.id);
@@ -240,6 +240,76 @@ const getSingleProfile = async (id: string) => {
   });
 
   return { ...result, ...counts, maritalVerifyCount };
+};
+
+const getMyProfiles = async (
+  params: TProfileFilterRequest,
+  options: IPaginationOptions,
+  userId: string
+) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
+
+  const andCondions: Prisma.ProfileWhereInput[] = [];
+
+  if (params.searchTerm) {
+    andCondions.push({
+      OR: profileSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: params.searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andCondions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+  const whereConditons: Prisma.ProfileWhereInput = { AND: andCondions };
+
+  const result = await prisma.profile.findMany({
+    where: { ...whereConditons, userId, isDeleted: false },
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+    select: {
+      id: true,
+      fullName: true,
+      image: true,
+      maritalStatus: true,
+      location: true,
+      createdAt: true,
+      updatedAt: true,
+      userId: true,
+    },
+  });
+
+  const total = await prisma.profile.count({
+    where: { ...whereConditons, userId, isDeleted: false },
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const reportProfile = async (
@@ -396,6 +466,7 @@ const varifyMaritalStatus = async (profileId: string, userId: string) => {
 export const ProfileService = {
   createProfile,
   getAllProfiles,
+  getMyProfiles,
   getSingleProfile,
   reportProfile,
   getAllReport,

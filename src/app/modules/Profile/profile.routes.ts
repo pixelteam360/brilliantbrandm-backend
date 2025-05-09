@@ -22,6 +22,8 @@ router
     ProfileController.createProfile
   );
 
+router.route("/my-profiles").get(auth(UserRole.USER), ProfileController.getMyProfiles);
+
 router
   .route("/report")
   .get(auth(UserRole.ADMIN), ProfileController.getAllReport);
