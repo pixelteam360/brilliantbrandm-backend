@@ -35,6 +35,15 @@ const getProfiles = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
         data: result,
     });
 }));
+const getMyProfiles = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const filters = (0, pick_1.default)(req.query, profile_costant_1.profileFilterableFields);
+    const options = (0, pick_1.default)(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    const result = yield profile_service_1.ProfileService.getMyProfiles(filters, options, req.user.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Profiles retrieve successfully!",
+        data: result,
+    });
+}));
 const getSingleProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield profile_service_1.ProfileService.getSingleProfile(req.params.id);
     (0, sendResponse_1.default)(res, {
@@ -92,11 +101,12 @@ const varifyMaritalStatus = (0, catchAsync_1.default)((req, res) => __awaiter(vo
 exports.ProfileController = {
     createProfile,
     getProfiles,
+    getMyProfiles,
     getSingleProfile,
     reportProfile,
     getAllReport,
     giveFlagToProfile,
     myGivenFlagToProfile,
     deleteProfile,
-    varifyMaritalStatus
+    varifyMaritalStatus,
 };

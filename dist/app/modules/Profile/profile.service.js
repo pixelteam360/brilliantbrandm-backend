@@ -116,7 +116,7 @@ const getAllProfiles = (params, options) => __awaiter(void 0, void 0, void 0, fu
         },
     });
     const total = yield prisma_1.default.profile.count({
-        where: whereConditons,
+        where: Object.assign(Object.assign({}, whereConditons), { isDeleted: false }),
     });
     const profileIds = profiles.map((profile) => profile.id);
     const flagCount = yield prisma_1.default.review.groupBy({
@@ -216,6 +216,64 @@ const getSingleProfile = (id) => __awaiter(void 0, void 0, void 0, function* () 
             counts.yellowFlag = flag._count.flag;
     });
     return Object.assign(Object.assign(Object.assign({}, result), counts), { maritalVerifyCount });
+});
+const getMyProfiles = (params, options, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
+    const { searchTerm } = params, filterData = __rest(params, ["searchTerm"]);
+    const andCondions = [];
+    if (params.searchTerm) {
+        andCondions.push({
+            OR: profile_costant_1.profileSearchAbleFields.map((field) => ({
+                [field]: {
+                    contains: params.searchTerm,
+                    mode: "insensitive",
+                },
+            })),
+        });
+    }
+    if (Object.keys(filterData).length > 0) {
+        andCondions.push({
+            AND: Object.keys(filterData).map((key) => ({
+                [key]: {
+                    equals: filterData[key],
+                },
+            })),
+        });
+    }
+    const whereConditons = { AND: andCondions };
+    const result = yield prisma_1.default.profile.findMany({
+        where: Object.assign(Object.assign({}, whereConditons), { userId, isDeleted: false }),
+        skip,
+        take: limit,
+        orderBy: options.sortBy && options.sortOrder
+            ? {
+                [options.sortBy]: options.sortOrder,
+            }
+            : {
+                createdAt: "desc",
+            },
+        select: {
+            id: true,
+            fullName: true,
+            image: true,
+            maritalStatus: true,
+            location: true,
+            createdAt: true,
+            updatedAt: true,
+            userId: true,
+        },
+    });
+    const total = yield prisma_1.default.profile.count({
+        where: Object.assign(Object.assign({}, whereConditons), { userId, isDeleted: false }),
+    });
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
 });
 const reportProfile = (payload, id, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const profile = yield prisma_1.default.profile.findFirst({
@@ -340,6 +398,7 @@ const varifyMaritalStatus = (profileId, userId) => __awaiter(void 0, void 0, voi
 exports.ProfileService = {
     createProfile,
     getAllProfiles,
+    getMyProfiles,
     getSingleProfile,
     reportProfile,
     getAllReport,
