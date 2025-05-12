@@ -296,6 +296,7 @@ const getAllReport = () => __awaiter(void 0, void 0, void 0, function* () {
             reporterId: true,
             profile: true,
         },
+        orderBy: { createdAt: "desc" },
     });
     return result;
 });
