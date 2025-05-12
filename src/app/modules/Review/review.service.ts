@@ -3,7 +3,15 @@ import ApiError from "../../../errors/ApiErrors";
 import prisma from "../../../shared/prisma";
 import { TReview, TReviewReport } from "./review.interface";
 
-const createReviewIntoDb = async (payload: TReview) => {
+const createReviewIntoDb = async (payload: TReview, userId: string) => {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+  });
+
+  if (user?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, "User is blocked");
+  }
+
   const profile = await prisma.profile.findFirst({
     where: { id: payload.profileId },
   });

@@ -87,7 +87,7 @@ const getUsersFromDb = async (
   const whereConditons: Prisma.UserWhereInput = { AND: andCondions };
 
   const result = await prisma.user.findMany({
-    where: whereConditons,
+    where: { ...whereConditons, NOT: { role: "ADMIN" } },
     skip,
     take: limit,
     orderBy:
@@ -158,6 +158,15 @@ const updateProfile = async (payload: User, imageFile: any, userId: string) => {
   return result;
 };
 
+const deleteUser = async (userId: string) => {
+  const result = await prisma.user.update({
+    where: { id: userId },
+    data: { isDeleted: true },
+  });
+
+  return { message: "User Deleted successfully" };
+};
+
 const adminOverView = async () => {
   const totalUser = await prisma.user.count({
     where: { isDeleted: false },
@@ -176,5 +185,6 @@ export const userService = {
   getUsersFromDb,
   getMyProfile,
   updateProfile,
+  deleteUser,
   adminOverView,
 };

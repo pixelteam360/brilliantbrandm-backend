@@ -9,12 +9,21 @@ import {
   TCommunityPosttFilterRequest,
 } from "./communityPost.interface";
 import { CommunityPosttSearchAbleFields } from "./communityPost.costant";
+import httpStatus from "http-status";
 
 const createCommunityPostIntoDb = async (
   payload: TCommunityPost,
   imageFiles: any,
   userId: string
 ) => {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+  });
+
+  if (user?.isDeleted) {
+    throw new ApiError(httpStatus.FORBIDDEN, "User is blocked");
+  }
+
   const result = await prisma.$transaction(async (prisma) => {
     const imagesUrls = await Promise.all(
       imageFiles.images.map(

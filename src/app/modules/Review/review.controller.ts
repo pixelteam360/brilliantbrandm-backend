@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import pick from "../../../shared/pick";
 
 const createReview = catchAsync(async (req, res) => {
-  const result = await ReviewService.createReviewIntoDb(req.body);
+  const result = await ReviewService.createReviewIntoDb(req.body, req.user.id);
   sendResponse(res, {
     message: "Review Created successfully!",
     data: result,

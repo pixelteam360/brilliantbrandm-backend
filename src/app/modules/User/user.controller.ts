@@ -47,6 +47,14 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
+const deleteUser = catchAsync(async (req, res) => {
+  const result = await userService.deleteUser(req.params.id);
+  sendResponse(res, {
+    message: "User Deleted successfully!",
+    data: result,
+  });
+});
+
 const adminOverView = catchAsync(async (req, res) => {
   const result = await userService.adminOverView();
   sendResponse(res, {
@@ -60,5 +68,6 @@ export const userController = {
   getUsers,
   getMyProfile,
   updateProfile,
+  deleteUser,
   adminOverView,
 };

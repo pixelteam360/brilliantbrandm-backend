@@ -30,6 +30,8 @@ router
     userController.updateProfile
   );
 
+router.delete("/:id", auth(UserRole.ADMIN), userController.deleteUser);
+
 router.get(
   "/admin-overview",
   auth(UserRole.ADMIN),
