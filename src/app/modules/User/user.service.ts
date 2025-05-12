@@ -132,6 +132,7 @@ const getMyProfile = async (userEmail: string) => {
       fullName: true,
       email: true,
       image: true,
+      location: true,
       createdAt: true,
       updatedAt: true,
     },

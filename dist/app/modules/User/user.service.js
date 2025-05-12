@@ -151,6 +151,7 @@ const getMyProfile = (userEmail) => __awaiter(void 0, void 0, void 0, function* 
             fullName: true,
             email: true,
             image: true,
+            location: true,
             createdAt: true,
             updatedAt: true,
         },

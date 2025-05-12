@@ -12,7 +12,7 @@ const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalEr
 const routes_1 = __importDefault(require("./app/routes"));
 const app = (0, express_1.default)();
 exports.corsOptions = {
-    origin: ["http://localhost:3001", "http://localhost:3000"],
+    origin: ["http://localhost:3001", "http://localhost:3000", "https://brilliantbrandm-client.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
