@@ -19,13 +19,16 @@ router
     req.body = JSON.parse(req.body.data);
     next();
 }, (0, validateRequest_1.default)(profile_validation_1.ProfileValidation.CreateProfileValidationSchema), profile_controller_1.ProfileController.createProfile);
-router.route("/my-profiles").get((0, auth_1.default)(client_1.UserRole.USER), profile_controller_1.ProfileController.getMyProfiles);
+router
+    .route("/my-profiles")
+    .get((0, auth_1.default)(client_1.UserRole.USER), profile_controller_1.ProfileController.getMyProfiles);
 router
     .route("/report")
     .get((0, auth_1.default)(client_1.UserRole.ADMIN), profile_controller_1.ProfileController.getAllReport);
 router
     .route("/report/:id")
-    .post((0, auth_1.default)(client_1.UserRole.USER), (0, validateRequest_1.default)(profile_validation_1.ProfileValidation.ProfileReportSchema), profile_controller_1.ProfileController.reportProfile);
+    .post((0, auth_1.default)(client_1.UserRole.USER), (0, validateRequest_1.default)(profile_validation_1.ProfileValidation.ProfileReportSchema), profile_controller_1.ProfileController.reportProfile)
+    .delete((0, auth_1.default)(client_1.UserRole.ADMIN), profile_controller_1.ProfileController.deleteProfileReport);
 router
     .route("/:id")
     .get(profile_controller_1.ProfileController.getSingleProfile)

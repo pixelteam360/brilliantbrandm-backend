@@ -25,10 +25,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommunityPostService = void 0;
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
+const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const paginationHelper_1 = require("../../../helpars/paginationHelper");
 const fileUploader_1 = require("../../../helpars/fileUploader");
 const communityPost_costant_1 = require("./communityPost.costant");
+const http_status_1 = __importDefault(require("http-status"));
 const createCommunityPostIntoDb = (payload, imageFiles, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findFirst({
+        where: { id: userId },
+    });
+    if (user === null || user === void 0 ? void 0 : user.isDeleted) {
+        throw new ApiErrors_1.default(http_status_1.default.FORBIDDEN, "User is blocked");
+    }
     const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
         const imagesUrls = yield Promise.all(imageFiles.images.map((image) => __awaiter(void 0, void 0, void 0, function* () {
             return (yield fileUploader_1.fileUploader.uploadToCloudinary(image)).Location;

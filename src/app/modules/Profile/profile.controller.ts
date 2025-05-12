@@ -92,7 +92,7 @@ const myGivenFlagToProfile = catchAsync(async (req, res) => {
     req.user.id
   );
   sendResponse(res, {
-    message: "Flag added successfully!",
+    message: "Flag retrieve successfully!",
     data: result,
   });
 });
@@ -100,7 +100,15 @@ const myGivenFlagToProfile = catchAsync(async (req, res) => {
 const deleteProfile = catchAsync(async (req, res) => {
   const result = await ProfileService.deleteProfile(req.params.id);
   sendResponse(res, {
-    message: "Reports retrieve successfully!",
+    message: "Profile deleted successfully!",
+    data: result,
+  });
+});
+
+const deleteProfileReport = catchAsync(async (req, res) => {
+  const result = await ProfileService.deleteProfileReport(req.params.id);
+  sendResponse(res, {
+    message: "Profile deleted successfully!",
     data: result,
   });
 });
@@ -126,5 +134,6 @@ export const ProfileController = {
   giveFlagToProfile,
   myGivenFlagToProfile,
   deleteProfile,
+  deleteProfileReport,
   varifyMaritalStatus,
 };

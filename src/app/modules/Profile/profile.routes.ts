@@ -22,7 +22,9 @@ router
     ProfileController.createProfile
   );
 
-router.route("/my-profiles").get(auth(UserRole.USER), ProfileController.getMyProfiles);
+router
+  .route("/my-profiles")
+  .get(auth(UserRole.USER), ProfileController.getMyProfiles);
 
 router
   .route("/report")
@@ -34,7 +36,8 @@ router
     auth(UserRole.USER),
     validateRequest(ProfileValidation.ProfileReportSchema),
     ProfileController.reportProfile
-  );
+  )
+  .delete(auth(UserRole.ADMIN), ProfileController.deleteProfileReport);
 
 router
   .route("/:id")

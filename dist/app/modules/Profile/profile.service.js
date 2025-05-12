@@ -368,6 +368,26 @@ const deleteProfile = (id) => __awaiter(void 0, void 0, void 0, function* () {
         message: "Profile deleted successfully",
     };
 });
+const deleteProfileReport = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const profileReport = yield prisma_1.default.profileReport.findFirst({
+        where: { id },
+    });
+    if (!profileReport) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Profile report not found");
+    }
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const deleteReview = yield prisma.profile.update({
+            where: { id: profileReport.profileId },
+            data: { isDeleted: true },
+        });
+        const deleteProfileReport = yield prisma.profileReport.delete({
+            where: { id },
+        });
+    }));
+    return {
+        message: "Profile deleted successfully",
+    };
+});
 const varifyMaritalStatus = (profileId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const profile = yield prisma_1.default.profile.findFirst({
         where: { id: profileId, isDeleted: false },
@@ -405,5 +425,6 @@ exports.ProfileService = {
     giveFlagToProfile,
     myGivenFlagToProfile,
     deleteProfile,
+    deleteProfileReport,
     varifyMaritalStatus,
 };

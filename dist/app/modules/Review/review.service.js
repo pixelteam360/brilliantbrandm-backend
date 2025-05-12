@@ -16,7 +16,13 @@ exports.ReviewService = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
-const createReviewIntoDb = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createReviewIntoDb = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield prisma_1.default.user.findFirst({
+        where: { id: userId },
+    });
+    if (user === null || user === void 0 ? void 0 : user.isDeleted) {
+        throw new ApiErrors_1.default(http_status_1.default.FORBIDDEN, "User is blocked");
+    }
     const profile = yield prisma_1.default.profile.findFirst({
         where: { id: payload.profileId },
     });

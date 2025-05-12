@@ -87,7 +87,7 @@ const getUsersFromDb = async (
   const whereConditons: Prisma.UserWhereInput = { AND: andCondions };
 
   const result = await prisma.user.findMany({
-    where: { ...whereConditons, NOT: { role: "ADMIN" } },
+    where: { ...whereConditons, isDeleted: false, NOT: { role: "ADMIN" } },
     skip,
     take: limit,
     orderBy:
@@ -109,7 +109,7 @@ const getUsersFromDb = async (
     },
   });
   const total = await prisma.user.count({
-    where: whereConditons,
+    where: { ...whereConditons, isDeleted: false, NOT: { role: "ADMIN" } },
   });
 
   return {

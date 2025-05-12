@@ -23,5 +23,6 @@ router
     req.body = JSON.parse(req.body.data);
     next();
 }, (0, validateRequest_1.default)(user_validation_1.UserValidation.userUpdateSchema), user_controller_1.userController.updateProfile);
+router.delete("/:id", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controller_1.userController.deleteUser);
 router.get("/admin-overview", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controller_1.userController.adminOverView);
 exports.UserRoutes = router;

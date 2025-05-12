@@ -341,6 +341,7 @@ const getAllReport = async () => {
       reporterId: true,
       profile: true,
     },
+    orderBy: { createdAt: "desc" },
   });
 
   return result;
@@ -428,6 +429,31 @@ const deleteProfile = async (id: string) => {
   };
 };
 
+const deleteProfileReport = async (id: string) => {
+  const profileReport = await prisma.profileReport.findFirst({
+    where: { id },
+  });
+
+  if (!profileReport) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Profile report not found");
+  }
+
+  const result = await prisma.$transaction(async (prisma) => {
+    const deleteReview = await prisma.profile.update({
+      where: { id: profileReport.profileId },
+      data: { isDeleted: true },
+    });
+
+    const deleteProfileReport = await prisma.profileReport.delete({
+      where: { id },
+    });
+  });
+
+  return {
+    message: "Profile deleted successfully",
+  };
+};
+
 const varifyMaritalStatus = async (profileId: string, userId: string) => {
   const profile = await prisma.profile.findFirst({
     where: { id: profileId, isDeleted: false },
@@ -473,5 +499,6 @@ export const ProfileService = {
   giveFlagToProfile,
   myGivenFlagToProfile,
   deleteProfile,
+  deleteProfileReport,
   varifyMaritalStatus,
 };

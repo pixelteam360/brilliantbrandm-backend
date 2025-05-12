@@ -109,7 +109,7 @@ const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fu
     }
     const whereConditons = { AND: andCondions };
     const result = yield prisma_1.default.user.findMany({
-        where: whereConditons,
+        where: Object.assign(Object.assign({}, whereConditons), { isDeleted: false, NOT: { role: "ADMIN" } }),
         skip,
         take: limit,
         orderBy: options.sortBy && options.sortOrder
@@ -130,7 +130,7 @@ const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fu
         },
     });
     const total = yield prisma_1.default.user.count({
-        where: whereConditons,
+        where: Object.assign(Object.assign({}, whereConditons), { isDeleted: false, NOT: { role: "ADMIN" } }),
     });
     return {
         meta: {
@@ -171,6 +171,13 @@ const updateProfile = (payload, imageFile, userId) => __awaiter(void 0, void 0, 
     }));
     return result;
 });
+const deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.user.update({
+        where: { id: userId },
+        data: { isDeleted: true },
+    });
+    return { message: "User Deleted successfully" };
+});
 const adminOverView = () => __awaiter(void 0, void 0, void 0, function* () {
     const totalUser = yield prisma_1.default.user.count({
         where: { isDeleted: false },
@@ -187,5 +194,6 @@ exports.userService = {
     getUsersFromDb,
     getMyProfile,
     updateProfile,
+    deleteUser,
     adminOverView,
 };

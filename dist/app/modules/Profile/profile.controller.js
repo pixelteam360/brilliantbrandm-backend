@@ -80,14 +80,21 @@ const giveFlagToProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void
 const myGivenFlagToProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield profile_service_1.ProfileService.myGivenFlagToProfile(req.params.id, req.user.id);
     (0, sendResponse_1.default)(res, {
-        message: "Flag added successfully!",
+        message: "Flag retrieve successfully!",
         data: result,
     });
 }));
 const deleteProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield profile_service_1.ProfileService.deleteProfile(req.params.id);
     (0, sendResponse_1.default)(res, {
-        message: "Reports retrieve successfully!",
+        message: "Profile deleted successfully!",
+        data: result,
+    });
+}));
+const deleteProfileReport = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield profile_service_1.ProfileService.deleteProfileReport(req.params.id);
+    (0, sendResponse_1.default)(res, {
+        message: "Profile deleted successfully!",
         data: result,
     });
 }));
@@ -108,5 +115,6 @@ exports.ProfileController = {
     giveFlagToProfile,
     myGivenFlagToProfile,
     deleteProfile,
+    deleteProfileReport,
     varifyMaritalStatus,
 };
