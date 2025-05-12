@@ -121,6 +121,7 @@ const getUsersFromDb = (params, options) => __awaiter(void 0, void 0, void 0, fu
             },
         select: {
             id: true,
+            image: true,
             fullName: true,
             email: true,
             role: true,

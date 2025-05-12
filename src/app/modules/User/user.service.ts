@@ -100,6 +100,7 @@ const getUsersFromDb = async (
           },
     select: {
       id: true,
+      image: true,
       fullName: true,
       email: true,
       role: true,
