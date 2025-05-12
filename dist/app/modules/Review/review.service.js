@@ -60,16 +60,21 @@ const getSingleReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return result;
 });
 const deleteReview = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const profile = yield prisma_1.default.review.findFirst({
+    const reviewReport = yield prisma_1.default.reviewReport.findFirst({
         where: { id },
     });
-    if (!profile) {
-        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Review not found");
+    if (!reviewReport) {
+        throw new ApiErrors_1.default(http_status_1.default.NOT_FOUND, "Review Report not found");
     }
-    const result = yield prisma_1.default.review.update({
-        where: { id },
-        data: { isDeleted: true },
-    });
+    const result = yield prisma_1.default.$transaction((prisma) => __awaiter(void 0, void 0, void 0, function* () {
+        const deleteReview = yield prisma.review.update({
+            where: { id: reviewReport.reviewId },
+            data: { isDeleted: true },
+        });
+        const deleteReviewReport = yield prisma.reviewReport.delete({
+            where: { id },
+        });
+    }));
     return { messate: "Review deleted successfully" };
 });
 const reportReview = (payload) => __awaiter(void 0, void 0, void 0, function* () {

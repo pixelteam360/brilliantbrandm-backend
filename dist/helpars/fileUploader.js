@@ -67,7 +67,7 @@ const uploadToCloudinary = (file) => __awaiter(void 0, void 0, void 0, function*
             folder: "uploads",
             resource_type: "auto", // Supports images, videos, etc.
             use_filename: true,
-            unique_filename: false,
+            unique_filename: true,
         }, (error, result) => {
             if (error) {
                 console.error("Error uploading file to Cloudinary:", error);

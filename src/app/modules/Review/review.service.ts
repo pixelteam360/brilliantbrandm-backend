@@ -54,18 +54,25 @@ const getSingleReview = async (id: string) => {
 };
 
 const deleteReview = async (id: string) => {
-  const profile = await prisma.review.findFirst({
+  const reviewReport = await prisma.reviewReport.findFirst({
     where: { id },
   });
 
-  if (!profile) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Review not found");
+  if (!reviewReport) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Review Report not found");
   }
 
-  const result = await prisma.review.update({
-    where: { id },
-    data: { isDeleted: true },
+  const result = await prisma.$transaction(async (prisma) => {
+    const deleteReview = await prisma.review.update({
+      where: { id: reviewReport.reviewId },
+      data: { isDeleted: true },
+    });
+
+    const deleteReviewReport = await prisma.reviewReport.delete({
+      where: { id },
+    });
   });
+
   return { messate: "Review deleted successfully" };
 };
 
