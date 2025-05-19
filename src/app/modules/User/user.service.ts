@@ -10,6 +10,7 @@ import { fileUploader } from "../../../helpars/fileUploader";
 import { IUserFilterRequest, TUser } from "./user.interface";
 import { jwtHelpers } from "../../../helpars/jwtHelpers";
 import { Secret } from "jsonwebtoken";
+import httpStatus from "http-status";
 
 const createUserIntoDb = async (payload: TUser) => {
   const existingUser = await prisma.user.findFirst({
@@ -142,8 +143,16 @@ const getMyProfile = async (userEmail: string) => {
 };
 
 const updateProfile = async (payload: User, imageFile: any, userId: string) => {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
   const result = await prisma.$transaction(async (prisma) => {
-    let image = "";
+    let image = user.image;
     if (imageFile) {
       image = (await fileUploader.uploadToCloudinary(imageFile)).Location;
     }
